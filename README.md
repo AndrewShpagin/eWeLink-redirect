@@ -12,7 +12,7 @@ as the web server where this node is run. I don't guarantee it will work forever
 
 All options look like
 ### /option=value
-The value is optional and may be missing if it has sense.
+The value is optional and may be missing if it has sense. You may pass multiple options at once and operate with multiple devices. But first 3 options should be **email, password, region**, this is mandatory!
 The list of available options:
 
 | Option    |Parameter | Value                                |
