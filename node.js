@@ -73,6 +73,7 @@ function deviceInfo(element){
     object.online = element.online;
     object.deviceid = element.deviceid;
     if(element.params.hasOwnProperty('currentTemperature'))object.currentTemperature =  element.params.currentTemperature;  
+    if(element.params.hasOwnProperty('currentHumidity'))object.switch = element.params.currentHumidity; 
     if(element.params.hasOwnProperty('switch'))object.switch = element.params.switch; 
   }
   return object;
