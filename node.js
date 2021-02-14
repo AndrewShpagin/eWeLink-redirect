@@ -1,7 +1,4 @@
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-shadow */
 /* eslint-disable no-await-in-loop */
-/* eslint-disable no-prototype-builtins */
 /* eslint-disable new-cap */
 const express = require('express');
 const ewelink = require('ewelink-api');
@@ -9,7 +6,7 @@ const ewelink = require('ewelink-api');
 const app = express();
 
 const port = process.env.PORT || 3002;
-const server = app.listen(port);
+app.listen(port);
 console.log(`Server listening on port ${port}`);
 
 function extract(path, key) {
@@ -73,14 +70,17 @@ async function ewconnect(path) {
 
 function deviceInfo(element) {
   const object = {};
-  if (element.hasOwnProperty('deviceid')) {
-    object.name = element.name;
-    object.online = element.online;
-    object.deviceid = element.deviceid;
-    if (element.params.hasOwnProperty('currentTemperature'))object.currentTemperature = element.params.currentTemperature;
-    if (element.params.hasOwnProperty('currentHumidity'))object.switch = element.params.currentHumidity;
-    if (element.params.hasOwnProperty('switch'))object.switch = element.params.switch;
-  }
+  const opt = property => {
+    if (Object.prototype.hasOwnProperty.call(element, property)) {
+      object[property] = element[property];
+    }
+  };
+  opt('name');
+  opt('online');
+  opt('deviceid');
+  opt('switch');
+  opt('currentTemperature');
+  opt('currentHumidity');
   return object;
 }
 
@@ -97,43 +97,29 @@ app.use(async (req, res, next) => {
         let state = null;
         let key = null;
         let val = null;
+        let some = false;
+        const accumulate = el => { answer += el; some = true; };
         do {
           [key, val, path] = getTag(path);
           if (key.length) {
-            let some = false;
+            some = false;
             if (key === 'devices') {
               const devices = await connection.getDevices();
-              for (const element of devices) {
-                const res = deviceInfo(devices, element.deviceid);
-                answer += JSON.stringify(res);
-                some = true;
-              }
+              devices.forEach(element => accumulate(JSON.stringify(deviceInfo(element))));
             }
             if (key === 'device') {
               deviceid = val;
               device = await connection.getDevice(deviceid);
               state = deviceInfo(device);
-              some = true;
             }
             if (device && deviceid.length) {
-              if (key === 'info') {
-                answer += JSON.stringify(state);
-                some = true;
-              }
+              if (key === 'info') accumulate(JSON.stringify(state));
               if ('toggle|on|off|turnoff|turnon'.indexOf(key) >= 0) {
-                some = true;
-                if (key.indexOf(state.switch) === -1) {
-                  await connection.toggleDevice(deviceid);
-                }
+                if (key.indexOf(state.switch) === -1) await connection.toggleDevice(deviceid);
               }
-              if (key === 'value') {
-                some = true;
-                answer += state[val];
-              }
+              if (key === 'value') accumulate(state[val]);
             }
-            if (!some) {
-              answer += key;
-            }
+            if (!some) accumulate(key);
           }
         } while (path.length > 0);
         res.writeHead(200, { 'Content-Type': 'application/json' });
