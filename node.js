@@ -71,13 +71,17 @@ async function ewconnect(path) {
 function deviceInfo(element) {
   const object = {};
   const opt = property => {
-    if (Object.prototype.hasOwnProperty.call(element, property)) {
-      object[property] = element[property];
+    if (element.hasOwnProperty(property)) {
+      if (element[property] !== 'unavailable')object[property] = element[property];
+    }
+    if (element.hasOwnProperty('params') && element.params.hasOwnProperty(property)) {
+      if (element.params[property] !== 'unavailable')object[property] = element.params[property];
     }
   };
   opt('name');
   opt('online');
   opt('deviceid');
+  opt('power');
   opt('switch');
   opt('currentTemperature');
   opt('currentHumidity');
@@ -85,6 +89,7 @@ function deviceInfo(element) {
 }
 
 app.use(async (req, res, next) => {
+  console.log(req.path);
   if (req.path.indexOf('/email') >= 0) {
     try {
       const connection = await ewconnect(req.path);
@@ -105,7 +110,11 @@ app.use(async (req, res, next) => {
             some = false;
             if (key === 'devices') {
               const devices = await connection.getDevices();
-              devices.forEach(element => accumulate(JSON.stringify(deviceInfo(element))));
+              devices.forEach(element => accumulate(JSON.stringify(deviceInfo(element), null, '\t')));
+            }
+            if (key === 'raw') {
+              const devices = await connection.getDevices();
+              accumulate(JSON.stringify(devices, null, '\t'));
             }
             if (key === 'device') {
               deviceid = val;
@@ -113,9 +122,15 @@ app.use(async (req, res, next) => {
               state = deviceInfo(device);
             }
             if (device && deviceid.length) {
-              if (key === 'info') accumulate(JSON.stringify(state));
-              if ('toggle|on|off|turnoff|turnon'.indexOf(key) >= 0) {
-                if (key.indexOf(state.switch) === -1) await connection.toggleDevice(deviceid);
+              if (key === 'info') accumulate(JSON.stringify(state, null, '\t'));
+              if (key === 'toggle') {
+                connection.toggleDevice(deviceid);
+              }
+              if (key === 'on') {
+                connection.setDevicePowerState(deviceid, 'on');
+              }
+              if (key === 'off') {
+                connection.setDevicePowerState(deviceid, 'off');
               }
               if (key === 'value') accumulate(state[val]);
             }
@@ -132,3 +147,5 @@ app.use(async (req, res, next) => {
   }
   next();
 });
+
+app.use(express.static('public'));
