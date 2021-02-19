@@ -38,7 +38,7 @@ http://iot-proxy.com/email=validemail@gmail.com/password=validpassword/region=eu
 
 it will send you the text
 ```json
-off{on},{
+{on},{
 	"name": "Фитофильтр",
 	"online": true,
 	"deviceid": "1000269525",
