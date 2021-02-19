@@ -34,9 +34,15 @@ If you will write comething like
 
 ### Example of the URL:
 
-http://http://iot-proxy.com/email=validemail@gmail.com/password=validpassword/region=eu/device=1000269525/off/%7B/value=switch/%7D,/info/
+http://iot-proxy.com/email=validemail@gmail.com/password=validpassword/region=eu/device=1000269525/off/%7B/value=switch/%7D,/info/
 
 it will send you the text
-
-**{off},{"name":"Фитофильтр","online":true,"deviceid":"1000269525","switch":"off"}**
+```json
+off{on},{
+	"name": "Фитофильтр",
+	"online": true,
+	"deviceid": "1000269525",
+	"switch": "on"
+}
+```
 
