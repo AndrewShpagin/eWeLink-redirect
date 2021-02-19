@@ -1,0 +1,107 @@
+<html>
+
+<body>
+    <h1 id="ewelink-redirect">eWeLink-redirect</h1>
+    <p>This node allows to get state or send command to any eWeLink device using the simple URL. It allows to operate
+        with devices from everywhere, for example from gs scripts (google sheets).</p>
+    <p>The links looks like
+        <strong>your_web_address/email=.../password=.../region=.../option=value/...</strong>
+    </p>
+    <p>As example you may use </p>
+    <p><a href="http://iot-proxy.com/">http://iot-proxy.com/</a></p>
+    <p>as the web server where this node is run. I don&#39;t guarantee it will work forever there. Better, setup your
+        own node if need.</p>
+    <p>All options look like</p>
+    <h3 id="-option-value">/option=value</h3>
+    <p>The value is optional and may be missing if it has sense. You may pass multiple options at once and operate with
+        multiple devices. But first 3 options should be <strong>email, password, region</strong>, this is mandatory!
+        The list of available options:</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Option</th>
+                <th style="text-align:center">Parameter</th>
+                <th style="text-align:left">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>/email</td>
+                <td style="text-align:center">email</td>
+                <td style="text-align:left">email used for eWeLink registration</td>
+            </tr>
+            <tr>
+                <td>/password</td>
+                <td style="text-align:center">password</td>
+                <td style="text-align:left">password used for registration</td>
+            </tr>
+            <tr>
+                <td>/region</td>
+                <td style="text-align:center">code</td>
+                <td style="text-align:left">registration region us, en, cn</td>
+            </tr>
+            <tr>
+                <td>/devices</td>
+                <td style="text-align:center">none</td>
+                <td style="text-align:left">returns the list of all devices</td>
+            </tr>
+            <tr>
+                <td>/raw</td>
+                <td style="text-align:center">none</td>
+                <td style="text-align:left">returns raw info about all devices</td>
+            </tr>
+            <tr>
+                <td>/device</td>
+                <td style="text-align:center">device ID</td>
+                <td style="text-align:left">sets the current device to operate, you should provide device ID as
+                    parameter, like <strong>/device=0981567</strong></td>
+            </tr>
+            <tr>
+                <td>/on</td>
+                <td style="text-align:center">none</td>
+                <td style="text-align:left">switch the device to &#39;ON&#39; state</td>
+            </tr>
+            <tr>
+                <td>/off</td>
+                <td style="text-align:center">none</td>
+                <td style="text-align:left">switch the device to &#39;OFF&#39; state</td>
+            </tr>
+            <tr>
+                <td>/toggle</td>
+                <td style="text-align:center">none</td>
+                <td style="text-align:left">switch the device state</td>
+            </tr>
+            <tr>
+                <td>/value</td>
+                <td style="text-align:center">identifier</td>
+                <td style="text-align:left">returns the value of the current device state, example
+                    <strong>/value=switch</strong>, pissible values - <strong>name, online, switch, deviceid,
+                        currentTemperature, currentHumidity, power</strong></td>
+            </tr>
+            <tr>
+                <td>/info</td>
+                <td style="text-align:center">none</td>
+                <td style="text-align:left">returns the state of the current device as json (see the example below)</td>
+            </tr>
+        </tbody>
+    </table>
+    <p>If you will write comething like
+        <strong>/some_letters_there</strong> and it will not be recognix=zed as some option, then the leters will be
+        passed directly to the output data without any changes.
+    </p>
+    <h3 id="example-of-the-url-">Example of the URL:</h3>
+    <p><a
+            href="http://iot-proxy.com/email=validemail@gmail.com/password=validpassword/region=eu/device=1000269525/off/%7B/value=switch/%7D,/info/">http://iot-proxy.com/email=validemail@gmail.com/password=validpassword/region=eu/device=1000269525/off/%7B/value=switch/%7D,/info/</a>
+    </p>
+    <p>it will send you the text</p>
+    <pre><code class="lang-json">{<span class="hljs-keyword">on</span>},{
+    <span class="hljs-string">"name"</span>: <span class="hljs-string">"Фитофильтр"</span>,
+    <span class="hljs-string">"online"</span>: <span class="hljs-literal">true</span>,
+    <span class="hljs-string">"deviceid"</span>: <span class="hljs-string">"1000269525"</span>,
+    <span class="hljs-string">"switch"</span>: <span class="hljs-string">"on"</span>
+}
+</code></pre>
+
+</body>
+
+</html>
