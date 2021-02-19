@@ -21,11 +21,12 @@ The list of available options:
 | /password | password | password used for registration       |
 | /region   | code     | registration region us, en, cn       |
 | /devices  | none     | returns the list of all devices      |
+| /raw      | none     | returns raw info about all devices   |
 | /device   | device ID| sets the current device to operate, you should provide device ID as parameter, like **/device=0981567** |
 | /on       | none     | switch the device to 'ON' state      |
 | /off      | none     | switch the device to 'OFF' state     |
 | /toggle   | none     | switch the device state              |
-| /value    |identifier|returns the value of the current device state, example **/value=switch**, pissible values - **name, online, switch, deviceid, currentTemperature, currentHumidity** |
+| /value    |identifier|returns the value of the current device state, example **/value=switch**, pissible values - **name, online, switch, deviceid, currentTemperature, currentHumidity, power** |
 | /info     | none     | returns the state of the current device as json (see the example below) |
 
 If you will write comething like
