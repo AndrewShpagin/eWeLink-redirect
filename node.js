@@ -126,12 +126,15 @@ app.use(async (req, res, next) => {
               if (key === 'info') accumulate(JSON.stringify(state, null, '\t'));
               if (key === 'toggle') {
                 connection.toggleDevice(deviceid);
+                some = true;
               }
               if (key === 'on') {
                 connection.setDevicePowerState(deviceid, 'on');
+                some = true;
               }
               if (key === 'off') {
                 connection.setDevicePowerState(deviceid, 'off');
+                some = true;
               }
               if (key === 'value') accumulate(state[val]);
             }
