@@ -1,12 +1,11 @@
-# eWeLink-redirect
+# iot-proxy.com
+
+GitHub - **https://github.com/AndrewShpagin/eWeLink-redirect**
+
 This node allows to get state or send command to any eWeLink device using the simple URL. It allows to operate with devices from everywhere, for example from gs scripts (google sheets).
 
 The links looks like
-**your_web_address/email=.../password=.../region=.../option=value/...**
-
-As example you may use 
-
-http://iot-proxy.com/
+**iot-proxy.com/email=.../password=.../region=.../option=value/...**
 
 as the web server where this node is run. I don't guarantee it will work forever there. Better, setup your own node if need.
 
