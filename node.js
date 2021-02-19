@@ -120,6 +120,7 @@ app.use(async (req, res, next) => {
               deviceid = val;
               device = await connection.getDevice(deviceid);
               state = deviceInfo(device);
+              some = true;
             }
             if (device && deviceid.length) {
               if (key === 'info') accumulate(JSON.stringify(state, null, '\t'));
