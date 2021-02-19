@@ -6,7 +6,7 @@ The links looks like
 
 As example you may use 
 
-http://royalchess.io:3002/
+http://iot-proxy.com/
 
 as the web server where this node is run. I don't guarantee it will work forever there. Better, setup your own node if need.
 
@@ -34,9 +34,15 @@ If you will write comething like
 
 ### Example of the URL:
 
-http://royalchess.io:3002/email=validemail@gmail.com/password=validpassword/region=eu/device=1000269525/off/%7B/value=switch/%7D,/info/
+http://iot-proxy.com/email=validemail@gmail.com/password=validpassword/region=eu/device=1000269525/off/%7B/value=switch/%7D,/info/
 
 it will send you the text
-
-**{off},{"name":"Фитофильтр","online":true,"deviceid":"1000269525","switch":"off"}**
+```json
+off{on},{
+	"name": "Фитофильтр",
+	"online": true,
+	"deviceid": "1000269525",
+	"switch": "on"
+}
+```
 
