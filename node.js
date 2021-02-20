@@ -110,7 +110,7 @@ app.use(async (req, res, next) => {
             some = false;
             if (key === 'devices') {
               const devices = await connection.getDevices();
-              devices.forEach(element => accumulate(JSON.stringify(deviceInfo(element), null, '\t')));
+              accumulate(JSON.stringify(user.devices, null, '\t'));
             }
             if (key === 'raw') {
               const devices = await connection.getDevices();
