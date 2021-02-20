@@ -2,6 +2,8 @@
 /* eslint-disable new-cap */
 const express = require('express');
 const ewelink = require('ewelink-api');
+const fetch = require('node-fetch');
+const CryptoJS = require('crypto-js');
 
 const app = express();
 
@@ -30,6 +32,15 @@ function extractLoginData(path) {
       password: Password,
       region: Region,
     };
+  } else {
+    const auth = extract(path, '/auth=');
+    const region = extract(path, '/region=');
+    if (auth && region) {
+      return {
+        at: auth,
+        region,
+      };
+    }
   }
   return null;
 }
@@ -87,15 +98,54 @@ function deviceInfo(element) {
   opt('currentHumidity');
   return object;
 }
+/*
+(async () => {
+  const connection = await new ewelink({
+    email: 'andrewshpagin@gmail.com',
+    password: 'Andrew75',
+    region: 'eu',
+  });
+  console.log(connection);
+  const log = await connection.login();
+  console.log('login:', log);
+})();
+*/
+/*
+(async () => {
+  const connection = new ewelink({
+    email: 'andrewshpagin@gmail.com',
+    password: 'Andrew75',
+    region: 'eu',
+  });
 
+  const login = await connection.getCredentials();
+  console.log(login);
+
+  const accessToken = login.at;
+  const { region } = login;
+
+  const newConnection = new ewelink({
+    at: accessToken,
+    region,
+  });
+
+  const devices = await newConnection.getDevice('1000269525');
+  // console.log(devices);
+})();
+const uri = 'https://eu-api.coolkit.cc:8080/api/user/device?lang=en&appid=YzfeftUVcZ6twZw1OoVKPRFYTrGEg01Q&ts=1613821418&version=8&getTags=1';
+const token = 'e56a6461dec4aee5d9ad0c579ef6b0184bfe7cae';
+fetch(uri, { method: 'get', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }).then(result => {
+  console.log('result:', result);
+});
+*/
 app.use(async (req, res, next) => {
   console.log(req.path);
-  if (req.path.indexOf('/email') >= 0) {
+  if (req.path.indexOf('/email=') >= 0 || req.path.indexOf('/auth=') >= 0) {
     try {
       const connection = await ewconnect(req.path);
       if (connection) {
         let path = decodeURI(req.path);
-        path = removeTags(path, '/email=', '/password=', '/region=');
+        path = removeTags(path, '/auth=', '/email=', '/password=', '/region=');
         let answer = '';
         let deviceid = null;
         let device = null;
@@ -104,43 +154,53 @@ app.use(async (req, res, next) => {
         let val = null;
         let some = false;
         const accumulate = el => { answer += el; some = true; };
-        do {
-          [key, val, path] = getTag(path);
-          if (key.length) {
-            some = false;
-            if (key === 'devices') {
-              const devices = await connection.getDevices();
-              accumulate(JSON.stringify(user.devices, null, '\t'));
-            }
-            if (key === 'raw') {
-              const devices = await connection.getDevices();
-              accumulate(JSON.stringify(devices, null, '\t'));
-            }
-            if (key === 'device') {
-              deviceid = val;
-              device = await connection.getDevice(deviceid);
-              state = deviceInfo(device);
-              some = true;
-            }
-            if (device && deviceid.length) {
-              if (key === 'info') accumulate(JSON.stringify(state, null, '\t'));
-              if (key === 'toggle') {
-                connection.toggleDevice(deviceid);
+        try {
+          do {
+            [key, val, path] = getTag(path);
+            if (key.length) {
+              some = false;
+              if (key === 'login') {
+                const login = await connection.getCredentials();
+                accumulate(login.at);
+              }
+              if (key === 'devices') {
+                const devices = await connection.getDevices();
+                const short = {};
+                devices.forEach(dev => short[dev.deviceid] = deviceInfo(dev));
+                accumulate(JSON.stringify(short, null, '\t'));
+              }
+              if (key === 'raw') {
+                const devices = await connection.getDevices();
+                accumulate(JSON.stringify(devices, null, '\t'));
+              }
+              if (key === 'device') {
+                deviceid = val;
+                device = await connection.getDevice(deviceid);
+                state = deviceInfo(device);
                 some = true;
               }
-              if (key === 'on') {
-                connection.setDevicePowerState(deviceid, 'on');
-                some = true;
+              if (device && deviceid.length) {
+                if (key === 'info') accumulate(JSON.stringify(state, null, '\t'));
+                if (key === 'toggle') {
+                  connection.toggleDevice(deviceid);
+                  some = true;
+                }
+                if (key === 'on') {
+                  connection.setDevicePowerState(deviceid, 'on');
+                  some = true;
+                }
+                if (key === 'off') {
+                  connection.setDevicePowerState(deviceid, 'off');
+                  some = true;
+                }
+                if (key === 'value') accumulate(state[val]);
               }
-              if (key === 'off') {
-                connection.setDevicePowerState(deviceid, 'off');
-                some = true;
-              }
-              if (key === 'value') accumulate(state[val]);
+              if (!some) accumulate(key);
             }
-            if (!some) accumulate(key);
-          }
-        } while (path.length > 0);
+          } while (path.length > 0);
+        } catch (error) {
+          answer = JSON.stringify(error, null, '\t');
+        }
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.write(answer);
         res.end();
